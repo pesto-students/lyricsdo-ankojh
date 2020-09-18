@@ -1,0 +1,28 @@
+html, body, #root{
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+
+.ly-container{
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  align-items: center;
+}
+
+.ly-container.ly-widescreen{
+  max-width: 1200px;
+  margin: auto;
+}
+
+
+.ly-header{
+  height: 50px;
+}
+
+.ly-content{
+  flex-grow: 1;
+}   
