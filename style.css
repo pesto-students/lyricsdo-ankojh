@@ -1,4 +1,6 @@
-html, body, #root{
+html,
+body,
+#root {
   padding: 0px;
   margin: 0px;
   width: 100%;
@@ -6,23 +8,146 @@ html, body, #root{
 }
 
 
-.ly-container{
+.nh-container {
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
   align-items: center;
+  background-color: rgb(246, 246, 246);
+  min-height: 100%;
 }
 
-.ly-container.ly-widescreen{
-  max-width: 1200px;
-  margin: auto;
-}
+/* .nh-header{
+  height: 75px;
+} */
 
-
-.ly-header{
-  height: 50px;
-}
-
-.ly-content{
+.nh-content {
+  /* margin-top: 30vh; */
   flex-grow: 1;
-}   
+}
+
+
+.nh-suggestions-pages-container{
+  /* display:grid;
+  grid-gap: 10px;
+  grid-template-columns: 300px; */
+}
+
+.nh-lyrics-overlay-container {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.767);
+  width: 100%;
+  min-height: 100%;
+  /* display: none; */
+  visibility: hidden;
+}
+
+.nh-lyrics-overlay-container.show__lyrics {
+  visibility: visible;
+}
+
+.nh-lyrics-content {
+  background-color: white;
+  padding: 10px;
+  margin: 30px;
+  border-radius: 10px;
+}
+
+
+
+
+.nh-suggestion-page{
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+
+@media only screen and (min-width: 700px) and (max-width: 1100px) {
+  .nh-suggestion-page {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media only screen and (min-width: 1100px) {
+  .nh-suggestion-page {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+
+
+.nh-suggestion-card {
+  position: relative;
+  cursor: pointer;
+  margin:10px;
+  height:200px;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0px 5px 4px rgb(204, 204, 204);
+  background-color: white;
+}
+
+
+.nh-suggestion-card:hover{
+  transition: all 0.1s;
+  transform: scale(1.01);
+  box-shadow: 0px 5px 8px rgb(170, 170, 170);
+}
+
+
+
+/* .nh-suggestion-card .nh-card-cassette{
+  position: absolute;
+} */
+
+
+.nh-card__cassette{
+  position: absolute;
+}
+
+.nh-cassette-fly {
+  position: absolute;
+}
+
+
+
+.nh-suggestion-card:hover .nh-cassette-frame {
+}
+
+
+.nh-card__arts{
+  height: 150px;
+}
+
+.nh-card__details{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* margin-top: 50px; */
+}
+
+
+.nh-card__album-cover{
+  border-radius:10px 0px 0px 10px;
+}
+
+.nh-card__artist-cover{
+    border-radius:0px 10px 10px 0px;
+}
+
+
+
+.nh-suggestion-card:hover .nh-cassette-fly {
+  animation: fly-rotate 3s linear 0s infinite;
+}
+
+
+@keyframes fly-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
