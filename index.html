@@ -6,24 +6,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/fav/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/fav/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/fav/favicon-16x16.png">
+  <link rel="manifest" href="./assets/fav/site.webmanifest">
+  <link rel="mask-icon" href="./assets/fav/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+
   <link rel="stylesheet" href="style.css">
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet"> -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet">
   <script src="scripts.js"></script>
-  <title>NoHum</title>
+  <title>Nohum: Stop Humming. Start Singing.</title>
 </head>
 <body>
   <div id="root">
     <div class="nh-container">
-      
-      <!-- <div class="nh-header">
-        NoHum
-      </div> -->
-
       <div class="nh-content">
-        <input id="nh-song-search" />
-
-        <div id="nh-suggestions-pages-container"></div>
-
+        <!-- <div class="nh-top-content"> -->
+          <img class="nh-logo" src="./assets/logo.png" alt="Nohum Logo" />
+          <input id="nh-song-search" placeholder="Search Lyrics Here..." autofocus />
+        <!-- </div> -->
+        <div id="nh-suggestions-pages-container" style="visibility: hidden;"></div>
       </div>
 
       <div id="nh-lyrics" class="nh-lyrics-overlay-container">
@@ -53,15 +58,11 @@
 
     <template id="nht-suggestion-card">
       <div class="nh-suggestion-card">
-        <!-- <div class="nh-card__cassette">
-          <img class="nh-cassette-frame" src="./assets/cs-frame-1.png" width="300px" />
-          <img class="nh-cassette-fly" src="./assets/cs-fly-2.png" width="31px" style="left:70px; top:64px" />
-          <img class="nh-cassette-fly" src="./assets/cs-fly-2.png" width="31px" style="left:200px; top:64px" />
-        </div> -->
-
+        
+        <!--  -->
         <div class="nh-card__arts">
-          <img class="nh-card__album-cover" width="148px" style="margin-right:-2px"/>
-          <img class="nh-card__artist-cover" width="148px" style="margin-left:-2px" />
+          <img class="nh-card__album-cover" width="148px" height="148px" style="margin-right:-2px" />
+          <img class="nh-card__artist-cover" width="148px" height="148px" style="margin-left:-2px" />
         </div>
 
         <div class="nh-card__details">
@@ -71,7 +72,11 @@
       </div>
     </template>
 
-
+        <!-- <div class="nh-card__cassette">
+          <img class="nh-cassette-frame" src="./assets/cs-frame-1.png" width="300px" />
+          <img class="nh-cassette-fly" src="./assets/cs-fly-2.png" width="31px" style="left:70px; top:64px" />
+          <img class="nh-cassette-fly" src="./assets/cs-fly-2.png" width="31px" style="left:200px; top:64px" />
+        </div> -->
   </div>
 </body>
 </html>

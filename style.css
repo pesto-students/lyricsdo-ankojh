@@ -12,22 +12,69 @@ body,
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  align-items: center;
-  background-color: rgb(246, 246, 246);
+  /* align-items: center; */
   min-height: 100%;
+  font-family: 'Roboto', sans-serif;
+  background-color: black;
+  background-image: url('./assets/mic-grad.jpg');
+  background-repeat: no-repeat;
 }
-
-/* .nh-header{
-  height: 75px;
-} */
 
 .nh-content {
-  /* margin-top: 30vh; */
+  transition: margin 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);;
+
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: auto;
+  align-items: center;
+  margin-top: 25vh;
 }
 
+.nh-content.ng-shrink {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);;
+  margin-top: 5vh;
+}
 
-.nh-suggestions-pages-container{
+.nh-logo {
+  width: 350px;
+}
+
+#nh-song-search {
+  outline: none;
+  border: none;
+  min-width: 300px;
+  padding: 20px;
+  margin: 30px 0px;
+  border-radius: 50px;
+  font-size: 20px;
+  text-align: center;
+  border: 2px solid transparent;
+}
+
+#nh-song-search:hover {
+  transition: all 0.3s ease-out;
+  /* transform: scale(1.02); */
+  border: 2px solid black;
+  box-shadow: 0px 0px 13px rgb(255, 255, 255);
+
+}
+
+#nh-song-search:focus {
+  transition: all 0.3s ease-out;
+  transform: scale(1.01);
+  border: 2px solid grey;
+  box-shadow: 0px 0px 5px rgb(255, 255, 255);
+}
+
+#nh-suggestions-pages-container {
+  background-color: rgb(237 237 237);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0px;
+  /* max-width: 1200px; */
+  /* margin: auto; */
   /* display:grid;
   grid-gap: 10px;
   grid-template-columns: 300px; */
@@ -56,13 +103,14 @@ body,
 
 
 
-.nh-suggestion-page{
+.nh-suggestion-page {
   display: grid;
+  justify-content: center;
   grid-template-columns: 1fr;
 }
 
 
-@media only screen and (min-width: 700px) and (max-width: 1100px) {
+@media only screen and (min-width: 750px) and (max-width: 1100px) {
   .nh-suggestion-page {
     grid-template-columns: 1fr 1fr;
   }
@@ -79,19 +127,20 @@ body,
 .nh-suggestion-card {
   position: relative;
   cursor: pointer;
-  margin:10px;
-  height:200px;
+  margin: 10px;
+  height: 200px;
+  width: 300px;
   padding: 10px;
   border-radius: 10px;
-  box-shadow: 0px 5px 4px rgb(204, 204, 204);
+  box-shadow: 0px 2px 4px rgb(204, 204, 204);
   background-color: white;
 }
 
 
-.nh-suggestion-card:hover{
+.nh-suggestion-card:hover {
   transition: all 0.1s;
   transform: scale(1.01);
-  box-shadow: 0px 5px 8px rgb(170, 170, 170);
+  box-shadow: 0px 2px 10px rgb(204, 204, 204);
 }
 
 
@@ -101,7 +150,8 @@ body,
 } */
 
 
-.nh-card__cassette{
+
+.nh-card__cassette {
   position: absolute;
 }
 
@@ -111,34 +161,64 @@ body,
 
 
 
-.nh-suggestion-card:hover .nh-cassette-frame {
-}
+.nh-suggestion-card:hover .nh-cassette-frame {}
 
 
-.nh-card__arts{
+.nh-card__arts {
   height: 150px;
 }
 
-.nh-card__details{
+.nh-card__details {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* margin-top: 50px; */
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.nh-card__details .nh-card__song-name {
+  font-weight: bold;
+}
+
+.nh-card__song-name, .nh-card__artist-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
 }
 
 
-.nh-card__album-cover{
-  border-radius:10px 0px 0px 10px;
+.nh-card__album-cover {
+  border-radius: 10px 0px 0px 10px;
 }
 
-.nh-card__artist-cover{
-    border-radius:0px 10px 10px 0px;
+.nh-card__artist-cover {
+  border-radius: 0px 10px 10px 0px;
 }
 
 
 
 .nh-suggestion-card:hover .nh-cassette-fly {
   animation: fly-rotate 3s linear 0s infinite;
+}
+
+
+.nh-card-dummy {
+  background-color: white;
+  background-image: linear-gradient(90deg, transparent, rgb(160 160 160 / 20%), transparent);
+  animation: card-loader 1s cubic-bezier(0, 0.79, 1, 0.36) infinite;
+
+}
+
+@keyframes card-loader{
+  0% {
+    background-position-x: 0px;
+  }
+
+  100%{
+    background-position-x: 300px;
+  }
 }
 
 
