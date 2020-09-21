@@ -12,8 +12,7 @@ body,
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  /* align-items: center; */
-  min-height: 100%;
+  height: 100%;
   font-family: 'Roboto', sans-serif;
   background-color: black;
   background-image: url('./assets/mic-grad.jpg');
@@ -33,22 +32,30 @@ body,
 }
 
 .nh-content.ng-shrink {
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);;
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   margin-top: 5vh;
 }
 
+.nh-content.ng-shrink .nh-logo{
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.8);
+}
+
 .nh-logo {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   width: 350px;
+  transform: scale(1);
 }
 
 #nh-song-search {
+  transition: width 0.3s ease-in-out;
   outline: none;
   border: none;
-  min-width: 300px;
-  padding: 20px;
+  width: 300px;
+  padding: 15px;
   margin: 30px 0px;
   border-radius: 50px;
-  font-size: 20px;
+  font-size: 18px;
   text-align: center;
   border: 2px solid transparent;
 }
@@ -56,16 +63,16 @@ body,
 #nh-song-search:hover {
   transition: all 0.3s ease-out;
   /* transform: scale(1.02); */
-  border: 2px solid black;
-  box-shadow: 0px 0px 13px rgb(255, 255, 255);
+  /* border: 2px solid black; */
+  /* box-shadow: 0px 0px 13px rgb(255, 255, 255); */
 
 }
 
 #nh-song-search:focus {
   transition: all 0.3s ease-out;
-  transform: scale(1.01);
-  border: 2px solid grey;
-  box-shadow: 0px 0px 5px rgb(255, 255, 255);
+  /* transform: scale(1.01); */
+  /* border: 2px solid grey;
+  box-shadow: 0px 0px 5px rgb(255, 255, 255); */
 }
 
 #nh-suggestions-pages-container {
@@ -84,8 +91,8 @@ body,
   position: absolute;
   background-color: rgba(0, 0, 0, 0.767);
   width: 100%;
-  min-height: 100%;
-  /* display: none; */
+  height: 100%;
+  overflow: scroll;
   visibility: hidden;
 }
 
@@ -96,11 +103,37 @@ body,
 .nh-lyrics-content {
   background-color: white;
   padding: 10px;
-  margin: 30px;
+  margin: 30px auto;
   border-radius: 10px;
+  text-align: center;
+  width:300px;
+  display: flex;
+  flex-direction: column;
 }
 
 
+.nh-lyrics__album-cover {
+  width: 100%;
+  border-radius: 10px;
+}
+
+#nh-lyrics-loader{
+  position: absolute;
+  width:100%;
+  height: 100%;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
+
+
+#nh-lyrics-loader img{
+  transition: all 0.3s;
+  box-shadow: 0px 0px 10px white;
+  border-radius: 10px;
+  width: 300px
+}
 
 
 .nh-suggestion-page {
@@ -110,22 +143,10 @@ body,
 }
 
 
-@media only screen and (min-width: 750px) and (max-width: 1100px) {
-  .nh-suggestion-page {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media only screen and (min-width: 1100px) {
-  .nh-suggestion-page {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-}
 
 
 
 .nh-suggestion-card {
-  position: relative;
   cursor: pointer;
   margin: 10px;
   height: 200px;
@@ -134,6 +155,15 @@ body,
   border-radius: 10px;
   box-shadow: 0px 2px 4px rgb(204, 204, 204);
   background-color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 150px 1fr 1fr;
+  grid-template-areas: "albumcover artistcover"
+                        "song song"
+                        "artist artist";
+  align-items: center;
+
+  /* animation: fade-in 0.3s ease-in-out; */
 }
 
 
@@ -144,40 +174,26 @@ body,
 }
 
 
-
-/* .nh-suggestion-card .nh-card-cassette{
-  position: absolute;
-} */
-
-
-
-.nh-card__cassette {
-  position: absolute;
-}
-
-.nh-cassette-fly {
-  position: absolute;
+.nh-card__album-cover{
+  grid-area:albumcover;
+  width: -webkit-fill-available;
 }
 
 
-
-.nh-suggestion-card:hover .nh-cassette-frame {}
-
-
-.nh-card__arts {
-  height: 150px;
+.nh-card__artist-cover{
+  grid-area:artistcover;
+  width: -webkit-fill-available;
 }
 
-.nh-card__details {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 16px;
-  margin-top: 10px;
+.nh-card__song-name {
+  font-weight: 500;
+  grid-area: song;
+  align-self: end;
 }
 
-.nh-card__details .nh-card__song-name {
-  font-weight: bold;
+.nh-card__artist-name {
+  grid-area: artist;
+  align-self: start;
 }
 
 .nh-card__song-name, .nh-card__artist-name {
@@ -199,17 +215,21 @@ body,
 
 
 
-.nh-suggestion-card:hover .nh-cassette-fly {
+/* .nh-suggestion-card:hover .nh-cassette-fly {
   animation: fly-rotate 3s linear 0s infinite;
-}
+} */
 
 
 .nh-card-dummy {
   background-color: white;
   background-image: linear-gradient(90deg, transparent, rgb(160 160 160 / 20%), transparent);
   animation: card-loader 1s cubic-bezier(0, 0.79, 1, 0.36) infinite;
-
+  cursor: default;
 }
+
+
+
+
 
 @keyframes card-loader{
   0% {
@@ -229,5 +249,51 @@ body,
 
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@media only screen and (min-width: 750px) and (max-width: 1100px) {
+  .nh-suggestion-page {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #nh-song-search {
+    width: 400px;
+  }
+
+  .nh-lyrics-content{
+    width: 600px;
+  }
+
+  #nh-lyrics-loader img {
+    width: 400px
+  }
+}
+
+@media only screen and (min-width: 1100px) {
+  .nh-suggestion-page {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  #nh-song-search {
+    width: 500px;
+  }
+
+  .nh-lyrics-content {
+    width: 700px;
+  }
+
+  #nh-lyrics-loader img {
+    width: 500px
   }
 }

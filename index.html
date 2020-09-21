@@ -1,5 +1,3 @@
-<!-- Thanks to -->
-<!-- https://dribbble.com/shots/5999176-Cassette-Tape-Illustration -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -30,10 +28,16 @@
         <!-- </div> -->
         <div id="nh-suggestions-pages-container" style="visibility: hidden;"></div>
       </div>
+      
+      <div id="nh-lyrics-loader">
+        <img src="assets/loader.gif"/>
+      </div>
 
       <div id="nh-lyrics" class="nh-lyrics-overlay-container">
           <div class="nh-lyrics-content">
             <button id="nh-lyrics-close" class="nh-lyrics__close">close</button>
+            <img class="nh-lyrics__album-cover nh-lyrics-cover__small" />
+            <img class="nh-lyrics__album-cover nh-lyrics-cover" />
             <span class="nh-lyrics__song-name"></span>
             <span class="nh-lyrics__album-name"></span>
             <span class="nh-lyrics__artist-name"></span>
@@ -57,26 +61,17 @@
     </template>
 
     <template id="nht-suggestion-card">
-      <div class="nh-suggestion-card">
-        
-        <!--  -->
-        <div class="nh-card__arts">
-          <img class="nh-card__album-cover" width="148px" height="148px" style="margin-right:-2px" />
-          <img class="nh-card__artist-cover" width="148px" height="148px" style="margin-left:-2px" />
-        </div>
-
-        <div class="nh-card__details">
+      <div class="nh-suggestion-card">    
+          <!-- <img class="nh-card__album-cover nh-cover__small" /> -->
+          <img class="nh-card__album-cover nh-cover" />
+          <!-- <img class="nh-card__artist-cover nh-cover__small" /> -->
+          <img class="nh-card__artist-cover nh-cover" />
           <span class="nh-card__song-name"></span>
           <span class="nh-card__artist-name"></span>
-        </div>
       </div>
     </template>
 
-        <!-- <div class="nh-card__cassette">
-          <img class="nh-cassette-frame" src="./assets/cs-frame-1.png" width="300px" />
-          <img class="nh-cassette-fly" src="./assets/cs-fly-2.png" width="31px" style="left:70px; top:64px" />
-          <img class="nh-cassette-fly" src="./assets/cs-fly-2.png" width="31px" style="left:200px; top:64px" />
-        </div> -->
+
   </div>
 </body>
 </html>

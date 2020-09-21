@@ -54,19 +54,20 @@
 
   //======================================================================================================================
 
-  const pagesState = {
-    pageHead: null
+  const state = {
+    pageHead: null,
+    searchValue: ''
   }
 
   function addSuggestionsPage(URL) {
-    pagesState.pageHead = new SuggestionPage(URL);
+    state.pageHead = new SuggestionPage(URL);
   }
 
   function clearSuggestionsPage() {
     PAGES_CONTAINER_EL.style.visibility = 'hidden';
-    if (pagesState.pageHead) {
-      pagesState.pageHead.destroy()
-      pagesState.pageHead = null
+    if (state.pageHead) {
+      state.pageHead.destroy()
+      state.pageHead = null
     }
   }
 
@@ -94,8 +95,13 @@
   async function searchChanged() {
     const searchQuery = SEARCH_EL.value;
 
-    clearSuggestionsPage();
+    if (searchQuery == state.searchValue) {
+      return;
+    }
 
+    state.searchValue = searchQuery;
+
+    clearSuggestionsPage();
     if (!searchQuery) {
       CONTENT_CONTAINER.classList.remove('ng-shrink')
       return;
@@ -120,7 +126,7 @@
     _pageHeight = null
     _pageWidth = null
     _dummyEl = null
-    _intersectionObserver = null  // change name
+    _intersectionObserver = null 
     _pageDetails = null
     _nextPage = null
     _pageURL = null
@@ -141,8 +147,8 @@
 
       await this._fetchPage(pageURL);
 
-      this._pageEl = TEMPLATE_SUGGESTION_PAGE.content.firstElementChild.cloneNode(true);
-      this._pageEl.classList.add('nh-suggestion-page')
+      const pageEl = TEMPLATE_SUGGESTION_PAGE.content.firstElementChild.cloneNode(true);
+      pageEl.classList.add('nh-suggestion-page')
 
       const NEXT_PAGE_INDICATOR_AFTER = 0.75;
 
@@ -151,11 +157,12 @@
       this._pageDetails.songs.forEach((song, index) => {
         let isIndicator = index == nextPageIndicatorAtIndex;
         const card = new SuggestionCard(song, isIndicator ? this._fetchNextPage.bind(this) : null);
-        this._pageEl.insertBefore(card.getCardEl(), null);
+        pageEl.insertBefore(card.getCardEl(), null);
         this._pageCards.push(card);
       })
 
-      PAGES_CONTAINER_EL.insertBefore(this._pageEl, null);
+      PAGES_CONTAINER_EL.insertBefore(pageEl, null);
+      this._pageEl = pageEl;
       this._listenToInteresectionObserver();
     }
 
@@ -164,7 +171,6 @@
       let options = {
         root: null, //browser viewport
         rootMargin: '100px',
-        // threshold: [0, 0.75]
       }
 
       this._intersectionObserver = new IntersectionObserver(this._handleIntersectionObserver.bind(this), options);
@@ -174,10 +180,6 @@
 
     _handleIntersectionObserver(observerEntries) {
       const pageObserverEntry = observerEntries[0];
-
-      // if (pageObserverEntry.intersectionRatio > 0.75) {
-      //   this._fetchNextPage()
-      // }
 
       if (pageObserverEntry.isIntersecting) {
         if (!this._dummyEl) {
@@ -214,7 +216,7 @@
         PAGES_CONTAINER_EL.insertBefore(this._pageLoaderEl, null);
       }
       else {
-        PAGES_CONTAINER_EL.removeChild(this._pageLoaderEl);
+        this._pageLoaderEl && PAGES_CONTAINER_EL.removeChild(this._pageLoaderEl);
         this._pageLoaderEl = null;
       }
     }
@@ -235,9 +237,6 @@
 
 
     _fetchNextPage() {
-
-      console.log('fetching next page')
-
       if (!this._nextPage && !this._pageLoaderEl) { // no next page && not loading current page
         this._nextPage = new SuggestionPage(this._pageURL)
         // this._nextPage = new SuggestionPage(this._pageDetails.next) // Ask Satyam for API 
@@ -251,16 +250,12 @@
         this._nextPage.destroy();
       }
 
-      if (this._dummyEl) {
-        PAGES_CONTAINER_EL.removeChild(this._dummyEl);
-      }
-      if (this._pageLoaderEl) {
-        PAGES_CONTAINER_EL.removeChild(this._pageLoaderEl);
-      }
-      else {
-        PAGES_CONTAINER_EL.removeChild(this._pageEl);
-      }
-      this._intersectionObserver.disconnect();
+      this._dummyEl && PAGES_CONTAINER_EL.removeChild(this._dummyEl);
+      this._pageLoaderEl && PAGES_CONTAINER_EL.removeChild(this._pageLoaderEl);
+      this._pageEl && PAGES_CONTAINER_EL.removeChild(this._pageEl);
+
+
+      this._intersectionObserver && this._intersectionObserver.disconnect();
 
       this._pageEl = null;
       this._dummyEl = null;
@@ -313,34 +308,59 @@
 
     constructor(song, intersectionCallback) {
       this._song = { ...song };
+      this._clickHandler = debouncedFunc(this._cardClicked.bind(this), 300);
       this.createCard(song);
 
-      if(intersectionCallback){
-      this._intersectionObserver = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) {
-          this._intersectionObserver.unobserve(this._cardEl);
-          this._intersectionObserver.disconnect();
-          this._intersectionObserver = null;
-          intersectionCallback();
-        }
-      });
+      if (intersectionCallback) {
+        this._intersectionObserver = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            this._intersectionObserver.unobserve(this._cardEl);
+            this._intersectionObserver.disconnect();
+            this._intersectionObserver = null;
+            intersectionCallback();
+          }
+        });
 
-      this._intersectionObserver.observe(this._cardEl);
+        this._intersectionObserver.observe(this._cardEl);
+      }
+
     }
 
-      this._clickHandler = this._cardClicked.bind(this);
-    }
+
 
     createCard(song) {
       this._cardEl = TEMPLATE_SUGGESTION_CARD.content.firstElementChild.cloneNode(true);
 
-      const albumCover = this._cardEl.querySelector('.nh-card__album-cover');
-      albumCover.src = song.album.picture;
-      albumCover.alt = song.album.name.substr(0, 10);
+      // let albumCoverSmall = this._cardEl.querySelector('.nh-card__album-cover.nh-cover__small');
+      // albumCoverSmall.src = song.album.pictureS;
+      // albumCoverSmall.alt = song.album.name.substr(0, 10);
 
-      const artistCover = this._cardEl.querySelector('.nh-card__artist-cover');
-      artistCover.src = song.artist.picture;
-      artistCover.alt = song.artist.name.substr(0, 10);;
+
+      // albumCoverSmall.addEventListener('load', (() => {
+        const albumCover = this._cardEl.querySelector('.nh-card__album-cover.nh-cover');
+        albumCover.src = song.album.picture;
+        albumCover.alt = song.album.name.substr(0, 10);
+      //   albumCover.addEventListener('load', (() => {
+      //     this._cardEl.removeChild(albumCoverSmall);
+      //     albumCoverSmall = null;
+      //   }))
+      // }))
+
+
+      // let artistCoverSmall = this._cardEl.querySelector('.nh-card__artist-cover.nh-cover__small');
+      // artistCoverSmall.src = song.artist.pictureS;
+      // artistCoverSmall.alt = song.artist.name.substr(0, 10);
+
+      // artistCoverSmall.addEventListener('load', (() => {
+        const artistCover = this._cardEl.querySelector('.nh-card__artist-cover.nh-cover');
+        artistCover.src = song.artist.picture;
+        artistCover.alt = song.artist.name.substr(0, 10);
+
+      //   artistCover.addEventListener('load', (() => {
+      //     this._cardEl.removeChild(artistCoverSmall);
+      //     artistCoverSmall = null;
+      //   }))
+      // }))
 
       this._cardEl.querySelector('.nh-card__song-name').innerText = song.name;
       this._cardEl.querySelector('.nh-card__artist-name').innerText = song.artist.name;
@@ -348,22 +368,34 @@
       this._listenToClick();
     }
 
+
+
     getCardEl() {
       return this._cardEl;
     }
 
+
+
     async _cardClicked() {
+      lyricsLoader(true);
       const { lyrics } = await fetchLyrics(this._song.artist.name, this._song.name);
+      lyricsLoader(false);
       showLyrics(this._song, lyrics)
     }
+
+
 
     _listenToClick() {
       this._cardEl.addEventListener('click', this._clickHandler);
     }
 
+
+
     _stopListenToClick() {
       this._cardEl.removeEventListener('click', this._clickHandler);
     }
+
+
 
     destroy() {
       this._stopListenToClick();
@@ -383,6 +415,7 @@
     LYRICS_CONTAINER.classList.add('show__lyrics');
 
     LYRICS_CONTAINER.querySelector('.nh-lyrics__close').addEventListener('click', removeLyrics);
+    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-cover').src = song.album.pictureXL;
     LYRICS_CONTAINER.querySelector('.nh-lyrics__song-name').innerText = song.name;
     LYRICS_CONTAINER.querySelector('.nh-lyrics__album-name').innerText = song.album.name;
     LYRICS_CONTAINER.querySelector('.nh-lyrics__artist-name').innerText = song.artist.name;
@@ -404,6 +437,15 @@
     LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = ''
   }
 
+  const lyricsLoader = (show) => {
+    if(show){
+      document.body.querySelector('#nh-lyrics-loader').style.display = 'flex';
+    }
+    else{
+      document.body.querySelector('#nh-lyrics-loader').style.display = 'none';
+    }
+  } 
+
 
   //======================================================================================================================
 
@@ -414,15 +456,19 @@
 
   let requestController;
 
-  async function fetchRequest(url) {
+  async function fetchRequest(url, noAbort) {
     try {
 
-      if (requestController) {
-        requestController.abort();
-      }
+      let signal;
 
-      requestController = new AbortController();
-      const signal = requestController.signal;
+      if(!noAbort){
+        if (requestController) {
+          requestController.abort();
+        }
+
+        requestController = new AbortController();
+        signal = requestController.signal;
+      }
 
       return await (await fetch(url, { signal })).json();
     }
@@ -432,20 +478,8 @@
   }
 
   async function fetchLyrics(artistName, songName) {
-    const result = await fetchRequest(`${LYRICS_BASEURL}/${artistName}/${songName}`)
+    const result = await fetchRequest(`${LYRICS_BASEURL}/${artistName}/${songName}`,true)
     return result;
-  }
-
-
-  //======================================================================================================================
-
-  // Loaders
-
-  //======================================================================================================================
-
-
-  function lyricsLoader(show) {
-
   }
 
 
@@ -487,12 +521,14 @@
         id: song.album && song.album.id,
         name: song.album && song.album.title,
         picture: song.album && song.album.cover,
+        pictureS: song.album && song.album.cover_small,
         pictureXL: song.album && song.album.cover_xl,
       },
       artist: {
         id: song.artist && song.artist.id,
         name: song.artist && song.artist.name,
         picture: song.artist && song.artist.picture,
+        pictureS: song.artist && song.artist.picture_small,
         pictureXL: song.artist && song.artist.picture_xl,
       }
     }
