@@ -13,12 +13,18 @@
   const LYRICS_BASEURL = 'https://api.lyrics.ovh/v1'
   const SUGGESTION_BASEURL = 'https://api.lyrics.ovh/suggest'
 
+
+
+
+  //constants declared after load
   let PAGES_CONTAINER_EL;
   let SEARCH_EL;
   let CONTENT_CONTAINER;
   let LYRICS_CONTAINER;
   let TEMPLATE_SUGGESTION_PAGE;
+  let TEMPLATE_SUGGESTION_PAGE_NOT_FOUND;
   let TEMPLATE_SUGGESTION_CARD;
+  let TEMPLATE_SUGGESTION_PAGE_DUMMY;
 
 
   //======================================================================================================================
@@ -45,6 +51,7 @@
     TEMPLATE_SUGGESTION_PAGE = document.querySelector('#nht-suggestion-page')
     TEMPLATE_SUGGESTION_CARD = document.querySelector('#nht-suggestion-card')
     TEMPLATE_SUGGESTION_PAGE_DUMMY = document.querySelector('#nht-suggestion-page-dummy')
+    TEMPLATE_SUGGESTION_PAGE_NOT_FOUND = document.querySelector('#nht-suggestion-page-not-found')
   }
 
 
@@ -126,7 +133,7 @@
     _pageHeight = null
     _pageWidth = null
     _dummyEl = null
-    _intersectionObserver = null 
+    _intersectionObserver = null
     _pageDetails = null
     _nextPage = null
     _pageURL = null
@@ -147,11 +154,17 @@
 
       await this._fetchPage(pageURL);
 
+      if(!this._pageDetails.songs.length){
+        const pageEl = TEMPLATE_SUGGESTION_PAGE_NOT_FOUND.content.firstElementChild.cloneNode(true);
+        PAGES_CONTAINER_EL.insertBefore(pageEl, null);
+        this._pageEl = pageEl;
+        return;
+      }
+
       const pageEl = TEMPLATE_SUGGESTION_PAGE.content.firstElementChild.cloneNode(true);
       pageEl.classList.add('nh-suggestion-page')
 
       const NEXT_PAGE_INDICATOR_AFTER = 0.75;
-
       const nextPageIndicatorAtIndex = Math.round(this._pageDetails.songs.length * NEXT_PAGE_INDICATOR_AFTER)
 
       this._pageDetails.songs.forEach((song, index) => {
@@ -337,9 +350,9 @@
 
 
       // albumCoverSmall.addEventListener('load', (() => {
-        const albumCover = this._cardEl.querySelector('.nh-card__album-cover.nh-cover');
-        albumCover.src = song.album.picture;
-        albumCover.alt = song.album.name.substr(0, 10);
+      const albumCover = this._cardEl.querySelector('.nh-card__album-cover.nh-cover');
+      albumCover.src = song.album.picture;
+      albumCover.alt = song.album.name.substr(0, 10);
       //   albumCover.addEventListener('load', (() => {
       //     this._cardEl.removeChild(albumCoverSmall);
       //     albumCoverSmall = null;
@@ -352,9 +365,9 @@
       // artistCoverSmall.alt = song.artist.name.substr(0, 10);
 
       // artistCoverSmall.addEventListener('load', (() => {
-        const artistCover = this._cardEl.querySelector('.nh-card__artist-cover.nh-cover');
-        artistCover.src = song.artist.picture;
-        artistCover.alt = song.artist.name.substr(0, 10);
+      const artistCover = this._cardEl.querySelector('.nh-card__artist-cover.nh-cover');
+      artistCover.src = song.artist.picture;
+      artistCover.alt = song.artist.name.substr(0, 10);
 
       //   artistCover.addEventListener('load', (() => {
       //     this._cardEl.removeChild(artistCoverSmall);
@@ -411,40 +424,54 @@
 
   //======================================================================================================================
 
-  const showLyrics = (song, lyrics) => {
+  function showLyrics(song, lyrics){
     LYRICS_CONTAINER.classList.add('show__lyrics');
 
     LYRICS_CONTAINER.querySelector('.nh-lyrics__close').addEventListener('click', removeLyrics);
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-cover').src = song.album.pictureXL;
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__song-name').innerText = song.name;
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-name').innerText = song.album.name;
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__artist-name').innerText = song.artist.name;
+    LYRICS_CONTAINER.addEventListener('click', removeLyrics);
+
+    setLyricsToView(song, lyrics);
+    
+  }
+
+  function removeLyrics(mouseEvent) { 
+
+    if (mouseEvent.target !== this) {
+      return;
+    }
+
+    LYRICS_CONTAINER.classList.remove('show__lyrics');
+
+    LYRICS_CONTAINER.querySelector('.nh-lyrics__close').removeEventListener('click', removeLyrics);
+    LYRICS_CONTAINER.removeEventListener('click', removeLyrics);
+    
+    setLyricsToView(null, null);
+  }
+
+  function lyricsLoader(show) {
+    if (show) {
+      document.body.querySelector('#nh-lyrics-loader').style.display = 'flex';
+    }
+    else {
+      document.body.querySelector('#nh-lyrics-loader').style.display = 'none';
+    }
+  }
+
+  function setLyricsToView(song, lyrics){
+    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-cover').src = song ? song.album.pictureXL : '';
+    LYRICS_CONTAINER.querySelector('.nh-lyrics__song-name').innerText = song ? 'Song: ' + song.name : '';
+    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-name').innerText = song ? 'Album: ' + song.album.name : '';
+    LYRICS_CONTAINER.querySelector('.nh-lyrics__artist-name').innerText = song ? 'Artist: ' + song.artist.name : '';
 
     if (lyrics) {
       LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = lyrics
     }
     else {
-      LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = 'No Lyrics Found'
+      LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = 'Oops... No Lyrics Found.'
     }
   }
 
-  const removeLyrics = () => {
-    LYRICS_CONTAINER.classList.remove('show__lyrics');
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__close').removeEventListener('click', removeLyrics);
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__song-name').innerText = '';
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-name').innerText = '';
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__artist-name').innerText = '';
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = ''
-  }
 
-  const lyricsLoader = (show) => {
-    if(show){
-      document.body.querySelector('#nh-lyrics-loader').style.display = 'flex';
-    }
-    else{
-      document.body.querySelector('#nh-lyrics-loader').style.display = 'none';
-    }
-  } 
 
 
   //======================================================================================================================
@@ -461,7 +488,7 @@
 
       let signal;
 
-      if(!noAbort){
+      if (!noAbort) {
         if (requestController) {
           requestController.abort();
         }
@@ -478,7 +505,7 @@
   }
 
   async function fetchLyrics(artistName, songName) {
-    const result = await fetchRequest(`${LYRICS_BASEURL}/${artistName}/${songName}`,true)
+    const result = await fetchRequest(`${LYRICS_BASEURL}/${artistName}/${songName}`, true)
     return result;
   }
 

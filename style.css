@@ -98,6 +98,7 @@ body,
 
 .nh-lyrics-overlay-container.show__lyrics {
   visibility: visible;
+  animation: fade-in 0.3s ease-in;
 }
 
 .nh-lyrics-content {
@@ -112,9 +113,11 @@ body,
 }
 
 
+
 .nh-lyrics__album-cover {
   width: 100%;
   border-radius: 10px;
+  margin: 50px 0px;
 }
 
 #nh-lyrics-loader{
@@ -125,6 +128,7 @@ body,
   justify-content: center;
   align-items: center;
   display: none;
+  animation: fade-in 0.3s ease-in;
 }
 
 
@@ -135,6 +139,38 @@ body,
   width: 300px
 }
 
+
+.nh-lyrics__song-name,
+.nh-lyrics__album-name,
+.nh-lyrics__artist-name{
+  font-size: 20px;
+}
+
+.nh-lyrics__lyrics{
+  line-height: 25px;
+}
+
+#nh-lyrics-close{
+  outline:none;
+  border:none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid grey;
+  background-color: white;
+  align-self: flex-end;
+  margin-bottom: 20px;
+  cursor: pointer;
+  box-shadow: 0px 0px 5px #a3a3a3;
+}
+
+#nh-lyrics-close:hover{
+  /* transition: all 0.3s; */
+  /* border: 1px solid black; */
+  background-color: grey;
+  color: white;
+  box-shadow: 0px 0px 7px grey;
+}
 
 .nh-suggestion-page {
   display: grid;
@@ -273,6 +309,7 @@ body,
 
   .nh-lyrics-content{
     width: 600px;
+    padding: 30px;
   }
 
   #nh-lyrics-loader img {
@@ -291,6 +328,7 @@ body,
 
   .nh-lyrics-content {
     width: 700px;
+    padding: 50px;
   }
 
   #nh-lyrics-loader img {

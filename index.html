@@ -29,24 +29,32 @@
         <div id="nh-suggestions-pages-container" style="visibility: hidden;"></div>
       </div>
       
-      <div id="nh-lyrics-loader">
-        <img src="assets/loader.gif"/>
-      </div>
 
       <div id="nh-lyrics" class="nh-lyrics-overlay-container">
           <div class="nh-lyrics-content">
-            <button id="nh-lyrics-close" class="nh-lyrics__close">close</button>
-            <img class="nh-lyrics__album-cover nh-lyrics-cover__small" />
-            <img class="nh-lyrics__album-cover nh-lyrics-cover" />
+            <button id="nh-lyrics-close" class="nh-lyrics__close">x</button>
             <span class="nh-lyrics__song-name"></span>
             <span class="nh-lyrics__album-name"></span>
             <span class="nh-lyrics__artist-name"></span>
+            <!-- <img class="nh-lyrics__album-cover nh-lyrics-cover__small" /> -->
+            <img class="nh-lyrics__album-cover nh-lyrics-cover" />
             <span class="nh-lyrics__lyrics"></span>
           </div>
         </div>
       </div>
 
     </div>
+
+    <div id="nh-lyrics-loader">
+      <img src="assets/loader.gif" />
+    </div>
+
+
+    <!-- <div id="nh-info-modal">
+      <img src="assets/loader.gif" />
+    </div> -->
+
+
 
     
 
@@ -60,6 +68,12 @@
       <div class="nh-suggestion-page-dummy"></div>
     </template>
 
+    <template id="nht-suggestion-page-not-found">
+      <div class="nh-suggestion-page-not-found">
+        Oops... No Results Found.
+      </div>
+    </template>
+
     <template id="nht-suggestion-card">
       <div class="nh-suggestion-card">    
           <!-- <img class="nh-card__album-cover nh-cover__small" /> -->
@@ -70,6 +84,8 @@
           <span class="nh-card__artist-name"></span>
       </div>
     </template>
+
+
 
 
   </div>
