@@ -271,7 +271,7 @@
     _dummifyPage() { //remove content, but maintain scrollHeight
       this._dummyEl = cloneNodeFromTemplate(TEMPLATE_SUGGESTION_PAGE_DUMMY);
       this._dummyEl.style.height = this._pageHeight + 'px';
-      this._dummyEl.style.width = this._pageWidth + 'px';
+      // this._dummyEl.style.width = this._pageWidth + 'px';
 
       PAGES_CONTAINER_EL.insertBefore(this._dummyEl, this._pageEl);
       PAGES_CONTAINER_EL.removeChild(this._pageEl);
