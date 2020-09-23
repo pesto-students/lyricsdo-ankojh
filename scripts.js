@@ -16,14 +16,17 @@
 
 
 
-  //constants defined after load
+  //constants that will be defined after load
   let PAGES_CONTAINER_EL;
   let SEARCH_EL;
-  let CONTENT_CONTAINER;
-  let LYRICS_CONTAINER;
+  let CONTENT_CONTAINER_EL;
+  let LYRICS_CONTAINER_EL;
+  let LYRICS_LOADER_EL;
+  let LYRICS_CLOSE_EL;
+
   let TEMPLATE_SUGGESTION_PAGE;
-  let TEMPLATE_SUGGESTION_PAGE_NOT_FOUND;
   let TEMPLATE_SUGGESTION_CARD;
+  let TEMPLATE_SUGGESTION_PAGE_NOT_FOUND;
   let TEMPLATE_SUGGESTION_PAGE_DUMMY;
 
 
@@ -36,17 +39,18 @@
 
 
   window.onload = function () {
-    fetchDomRefs();
+    setGlobalDOMReferences();
     listenToSearchInputChange(searchChanged);
   }
 
 
-  function fetchDomRefs() {
+  function setGlobalDOMReferences() {
     PAGES_CONTAINER_EL = document.body.querySelector('#nh-suggestions-pages-container')
     SEARCH_EL = document.querySelector('#nh-song-search');
-    LYRICS_CONTAINER = document.querySelector('#nh-lyrics');
-    CONTENT_CONTAINER = document.querySelector('.nh-content')
-
+    LYRICS_CONTAINER_EL = document.querySelector('#nh-lyrics');
+    CONTENT_CONTAINER_EL = document.querySelector('.nh-content');
+    LYRICS_LOADER_EL = document.body.querySelector('#nh-lyrics-loader')
+    LYRICS_CLOSE_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__close')
 
     TEMPLATE_SUGGESTION_PAGE = document.querySelector('#nht-suggestion-page')
     TEMPLATE_SUGGESTION_CARD = document.querySelector('#nht-suggestion-card')
@@ -62,7 +66,7 @@
   //======================================================================================================================
 
   const state = {
-    pageHead: null,
+    pageHead: null, //head page of linked-list of pages
     searchValue: ''
   }
 
@@ -94,28 +98,30 @@
 
   //======================================================================================================================
 
-  //  Search
+  //  Search Handler
 
   //======================================================================================================================
 
 
   async function searchChanged() {
-    const searchQuery = SEARCH_EL.value;
+    const newSearchQuery = SEARCH_EL.value;
 
-    if (searchQuery == state.searchValue) {
+    if (newSearchQuery == state.searchValue) {
       return;
     }
 
-    state.searchValue = searchQuery;
-
+    state.searchValue = newSearchQuery;
     clearSuggestionsPage();
 
-    if (!searchQuery) {
-      CONTENT_CONTAINER.classList.remove('ng-shrink')
+    if (!newSearchQuery) {
+      CONTENT_CONTAINER_EL.classList.remove('nh-shrink')
       return;
     }
 
-    const URL = `${SUGGESTION_BASEURL}/${searchQuery}`
+
+    PAGES_CONTAINER_EL.style.visibility = 'visible'; 
+    CONTENT_CONTAINER_EL.classList.add('nh-shrink')  
+    const URL = `${SUGGESTION_BASEURL}/${newSearchQuery}`
     addSuggestionsPage(URL);
   }
 
@@ -140,43 +146,52 @@
     _pageURL = null
     _pageLoaderEl = null
     _NEXT_PAGE_INDICATOR_AFTER = 0.75
+    _NUMBER_OF_DUMMY_CARDS_IN_PAGE_LOADERS = 12
 
 
 
     constructor(pageURL) {
       this._addPage(pageURL);
-      this._pageURL = pageURL; //only for testing,use nextpageurl to load next page
+      this._pageURL = pageURL; //only for testing, use API's nextPageURL to load the next page
     }
 
 
 
     async _addPage(pageURL) {
-      PAGES_CONTAINER_EL.style.visibility = 'visible'; // todo
-      CONTENT_CONTAINER.classList.add('ng-shrink')  // todo
+      this._pageDetails = await this._fetchPageSuggestions(pageURL);
 
-      await this._fetchPage(pageURL);
-      if(!this._pageDetails.songs.length){
-        const pageEl = TEMPLATE_SUGGESTION_PAGE_NOT_FOUND.content.firstElementChild.cloneNode(true);
-        PAGES_CONTAINER_EL.insertBefore(pageEl, null);
-        this._pageEl = pageEl;
+      const doesPageHasSongs = Boolean(this._pageDetails.songs.length);
+
+      if (!doesPageHasSongs) {
+        this._addPageNotFound();
         return;
       }
 
-      const pageEl = TEMPLATE_SUGGESTION_PAGE.content.firstElementChild.cloneNode(true);
-      pageEl.classList.add('nh-suggestion-page')
+      const pageEl = cloneNodeFromTemplate(TEMPLATE_SUGGESTION_PAGE);
 
-      const nextPageIndicatorAtIndex = Math.round(this._pageDetails.songs.length * this._NEXT_PAGE_INDICATOR_AFTER)
-
-      this._pageDetails.songs.forEach((song, index) => {
-        let isIndicator = index == nextPageIndicatorAtIndex;
-        const card = new SuggestionCard(song, isIndicator ? this._fetchNextPage.bind(this) : null);
-        pageEl.insertBefore(card.getCardEl(), null);
-        this._pageCards.push(card);
-      })
-
+      this._addSongCards(pageEl, this._pageDetails.songs);
       PAGES_CONTAINER_EL.insertBefore(pageEl, null);
       this._pageEl = pageEl;
       this._listenToInteresectionObserver();
+    }
+
+
+    _addSongCards(pageEl, songs) {
+      const nextPageIndicatorAtIndex = Math.round(songs.length * this._NEXT_PAGE_INDICATOR_AFTER)
+
+      songs.forEach((song, index) => {
+        const shouldAddNextPageIndicator = index == nextPageIndicatorAtIndex;
+        const card = new SuggestionCard(song, shouldAddNextPageIndicator ? this._addNextPage.bind(this) : null);
+        pageEl.insertBefore(card.getCardEl(), null);
+        this._pageCards.push(card);
+      })
+    }
+
+
+    _addPageNotFound() {
+      const pageEl = cloneNodeFromTemplate(TEMPLATE_SUGGESTION_PAGE_NOT_FOUND)
+      PAGES_CONTAINER_EL.insertBefore(pageEl, null);
+      this._pageEl = pageEl;
     }
 
 
@@ -195,10 +210,12 @@
 
     _handleIntersectionObserver([pageObserverEntry]) {
 
-      this._pageHeight = pageObserverEntry.boundingClientRect.height; //setting it again to handle window resize.
+      this._pageHeight = pageObserverEntry.boundingClientRect.height;
       this._pageWidth = pageObserverEntry.boundingClientRect.width;
 
-      if (pageObserverEntry.isIntersecting) {
+      const isPageVisible = pageObserverEntry.isIntersecting;
+
+      if (isPageVisible) {
         this._dummyEl && this._unDummifyPage();
       }
       else {
@@ -208,11 +225,24 @@
 
 
 
+    async _fetchPageSuggestions(URL) {
+      this._togglePageLoaders(true);
+      const result = await fetchRequest(URL);
+      this._togglePageLoaders(false);
+      return {
+        songs: result.data.map(suggestionsResponseParser),
+        nextPageURL: this._pageURL,//result.next,
+        totalSongs: result.total
+      }
+    }
+
+
+
     _togglePageLoaders(showLoader) { //true or false
       if (showLoader) {
-        this._pageLoaderEl = TEMPLATE_SUGGESTION_PAGE.content.firstElementChild.cloneNode(true);
+        this._pageLoaderEl = cloneNodeFromTemplate(TEMPLATE_SUGGESTION_PAGE);
 
-        for (let i = 0; i < 12; i++) { // why create it all the time??? but why store all the time, we don't neet it always?
+        for (let i = 0; i < this._NUMBER_OF_DUMMY_CARDS_IN_PAGE_LOADERS; i++) {
           const cardEl = SuggestionCard.createDummyCard();
           this._pageLoaderEl.insertBefore(cardEl, null);
         }
@@ -227,21 +257,10 @@
 
 
 
-    async _fetchPage(URL) {
-      this._togglePageLoaders(true);
-      const result = await fetchRequest(URL);
-      this._togglePageLoaders(false);
-      this._pageDetails = {
-        songs: result.data.map(suggestionsResponseParser),
-        nextPageURL: this._pageURL,//result.next,
-        totalSongs: result.total
-      }
-    }
+    _addNextPage() {
+      const canFetchNextPage = !this._nextPage && !this._pageLoaderEl; // no next page && not loading current page
 
-
-
-    _fetchNextPage() {
-      if (!this._nextPage && !this._pageLoaderEl) { // no next page && not loading current page
+      if (canFetchNextPage) {
         this._nextPage = new SuggestionPage(this._pageURL)
         // this._nextPage = new SuggestionPage(this._pageDetails.next) // Ask Satyam for API 
       }
@@ -250,7 +269,7 @@
 
 
     _dummifyPage() { //remove content, but maintain scrollHeight
-      this._dummyEl = TEMPLATE_SUGGESTION_PAGE_DUMMY.content.firstElementChild.cloneNode(true);
+      this._dummyEl = cloneNodeFromTemplate(TEMPLATE_SUGGESTION_PAGE_DUMMY);
       this._dummyEl.style.height = this._pageHeight + 'px';
       this._dummyEl.style.width = this._pageWidth + 'px';
 
@@ -290,7 +309,9 @@
 
       this._pageCards.forEach(card => {
         card.destroy();
-      })  
+      })
+
+      this._pageCards = [];
     }
 
   }
@@ -316,13 +337,13 @@
       this._clickHandler = debouncedFunc(this._cardClicked.bind(this), 300);
       this.createCard(song);
 
-      if(intersectionCallback){
+      if (intersectionCallback) {
         this._listenToInteresectionObserver(intersectionCallback);
       }
     }
 
 
-    static createDummyCard(){
+    static createDummyCard() {
       const dummyCardEl = document.createElement('div');
       dummyCardEl.classList.add('nh-suggestion-card');
       dummyCardEl.classList.add('nh-card-dummy');
@@ -331,7 +352,7 @@
 
 
     createCard(song) {
-      this._cardEl = TEMPLATE_SUGGESTION_CARD.content.firstElementChild.cloneNode(true);
+      this._cardEl = cloneNodeFromTemplate(TEMPLATE_SUGGESTION_CARD);
 
       const albumCover = this._cardEl.querySelector('.nh-card__album-cover.nh-cover');
       albumCover.src = song.album.picture;
@@ -365,7 +386,7 @@
 
 
 
-    _listenToInteresectionObserver(intersectionCallback){
+    _listenToInteresectionObserver(intersectionCallback) {
       this._intersectionObserver = new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) {
           this._intersectionObserver.unobserve(this._cardEl);
@@ -406,52 +427,54 @@
 
   //======================================================================================================================
 
-  function showLyrics(song, lyrics){
-    LYRICS_CONTAINER.classList.add('show__lyrics');
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__close').addEventListener('click', removeLyrics); 
-    LYRICS_CONTAINER.addEventListener('click', removeLyrics);
+  function showLyrics(song, lyrics) {
+    LYRICS_CONTAINER_EL.classList.add('show__lyrics');
+
+    LYRICS_CLOSE_EL.addEventListener('click', removeLyrics);
+    LYRICS_CONTAINER_EL.addEventListener('click', removeLyrics);
 
     setLyricsToView(song, lyrics);
   }
 
 
-  function removeLyrics(mouseEvent) { 
 
+  function removeLyrics(mouseEvent) {
     if (mouseEvent.target !== this) {
       return;
     }
 
-    LYRICS_CONTAINER.classList.remove('show__lyrics');
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__close').removeEventListener('click', removeLyrics);
-    LYRICS_CONTAINER.removeEventListener('click', removeLyrics);
-    
+    LYRICS_CONTAINER_EL.classList.remove('show__lyrics');
+
+    LYRICS_CLOSE_EL.removeEventListener('click', removeLyrics);
+    LYRICS_CONTAINER_EL.removeEventListener('click', removeLyrics);
+
     setLyricsToView(null, null);
   }
 
 
 
-  function lyricsLoader(show) { //refactor this
+  function lyricsLoader(show) {
     if (show) {
-      document.body.querySelector('#nh-lyrics-loader').style.display = 'flex';
+      LYRICS_LOADER_EL.style.display = 'flex';
     }
     else {
-      document.body.querySelector('#nh-lyrics-loader').style.display = 'none';
+      LYRICS_LOADER_EL.style.display = 'none';
     }
   }
 
 
 
-  function setLyricsToView(song, lyrics){
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-cover').src = song ? song.album.pictureXL : '';
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__song-name').innerText = song ? 'Song: ' + song.name : '';
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__album-name').innerText = song ? 'Album: ' + song.album.name : '';
-    LYRICS_CONTAINER.querySelector('.nh-lyrics__artist-name').innerText = song ? 'Artist: ' + song.artist.name : '';
+  function setLyricsToView(song, lyrics) {
+    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__album-cover').src = song ? song.album.pictureXL : '';
+    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__song-name').innerText = song ? 'Song: ' + song.name : '';
+    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__album-name').innerText = song ? 'Album: ' + song.album.name : '';
+    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__artist-name').innerText = song ? 'Artist: ' + song.artist.name : '';
 
     if (lyrics) {
-      LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = lyrics
+      LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__lyrics').innerText = lyrics
     }
     else {
-      LYRICS_CONTAINER.querySelector('.nh-lyrics__lyrics').innerText = 'Oops... No Lyrics Found.'
+      LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__lyrics').innerText = 'Oops... No Lyrics Found.'
     }
   }
 
@@ -489,7 +512,8 @@
   }
 
   async function fetchLyrics(artistName, songName) {
-     return await fetchRequest(`${LYRICS_BASEURL}/${artistName}/${songName}`, true)
+    const noAbort = true;
+    return await fetchRequest(`${LYRICS_BASEURL}/${artistName}/${songName}`, noAbort)
   }
 
 
@@ -498,6 +522,11 @@
   //  Utils
 
   //======================================================================================================================
+
+
+  function cloneNodeFromTemplate(template) {
+    return template.content.firstElementChild.cloneNode(true);
+  }
 
   function debouncedFunc(func, timeInMS) {
     let timeout;
