@@ -1,36 +1,44 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/fav/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="./assets/fav/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./assets/fav/favicon-16x16.png">
-  <link rel="manifest" href="./assets/fav/site.webmanifest">
-  <link rel="mask-icon" href="./assets/fav/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="msapplication-TileColor" content="#da532c">
-  <meta name="theme-color" content="#ffffff">
 
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet">
-  <script src="scripts.js"></script>
-  <title>Nohum: Stop Humming. Start Singing.</title>
-</head>
-<body>
-  <div id="root">
-    <div class="nh-container">
-      <div class="nh-content">
-        <!-- <div class="nh-top-content"> -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/fav/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/fav/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/fav/favicon-16x16.png">
+    <link rel="manifest" href="./assets/fav/site.webmanifest">
+    <link rel="mask-icon" href="./assets/fav/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet">
+    <script src="scripts.js"></script>
+
+    <title>Nohum: Stop Humming. Start Singing.</title>
+    
+  </head>
+
+  <body>
+    <div id="root">
+      <div class="nh-container">
+
+
+        <div class="nh-content">
           <img class="nh-logo" src="./assets/logo.png" alt="Nohum Logo" />
           <input id="nh-song-search" placeholder="Search Lyrics Here..." autofocus />
-        <!-- </div> -->
-        <div id="nh-suggestions-pages-container" style="visibility: hidden;"></div>
-      </div>
-      
+          <div id="nh-suggestions-pages-container" style="visibility: hidden;"></div>
+        </div>
 
-      <div id="nh-lyrics" class="nh-lyrics-overlay-container">
+
+        <div id="nh-lyrics-loader">
+          <img src="assets/loader.gif" />
+        </div>
+
+
+        <div id="nh-lyrics" class="nh-lyrics-overlay-container">
           <div class="nh-lyrics-content">
             <button id="nh-lyrics-close" class="nh-lyrics__close">x</button>
             <span class="nh-lyrics__song-name"></span>
@@ -41,22 +49,12 @@
             <span class="nh-lyrics__lyrics"></span>
           </div>
         </div>
+
+
       </div>
-
-    </div>
-
-    <div id="nh-lyrics-loader">
-      <img src="assets/loader.gif" />
     </div>
 
 
-    <!-- <div id="nh-info-modal">
-      <img src="assets/loader.gif" />
-    </div> -->
-
-
-
-    
 
     <!-- Templates -->
 
@@ -64,9 +62,13 @@
       <div class="nh-suggestion-page"></div>
     </template>
 
+
+
     <template id="nht-suggestion-page-dummy">
       <div class="nh-suggestion-page-dummy"></div>
     </template>
+
+
 
     <template id="nht-suggestion-page-not-found">
       <div class="nh-suggestion-page-not-found">
@@ -74,21 +76,22 @@
       </div>
     </template>
 
+
+
     <template id="nht-suggestion-card">
-      <div class="nh-suggestion-card">    
-          <!-- <img class="nh-card__album-cover nh-cover__small" /> -->
-          <img class="nh-card__album-cover nh-cover" />
-          <!-- <img class="nh-card__artist-cover nh-cover__small" /> -->
-          <img class="nh-card__artist-cover nh-cover" />
-          <span class="nh-card__song-name"></span>
-          <span class="nh-card__artist-name"></span>
+      <div class="nh-suggestion-card">
+        <!-- <img class="nh-card__album-cover nh-cover__small" /> -->
+        <img class="nh-card__album-cover nh-cover" />
+        <!-- <img class="nh-card__artist-cover nh-cover__small" /> -->
+        <img class="nh-card__artist-cover nh-cover" />
+        <span class="nh-card__song-name"></span>
+        <span class="nh-card__artist-name"></span>
       </div>
     </template>
 
 
+    </div>
 
+  </body>
 
-  </div>
-</body>
 </html>
-
