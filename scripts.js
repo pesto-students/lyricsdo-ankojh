@@ -14,6 +14,11 @@
   const SUGGESTION_BASEURL = 'https://api.lyrics.ovh/suggest'
 
 
+  const CLASS_SHOW_LYRICS_LOADER = 'nh-show--lyrics-loader';
+  const CLASS_SHOW_LYRICS = 'nh-show--lyrics';
+  const CLASS_SHOW_PAGES_CONTAINER = 'nh-show--pages-container';
+  const CLASS_SHRINK_LOGO = 'nh-shrink--logo'
+
 
 
   //constants that will be defined after load
@@ -28,6 +33,7 @@
   let TEMPLATE_SUGGESTION_CARD;
   let TEMPLATE_SUGGESTION_PAGE_NOT_FOUND;
   let TEMPLATE_SUGGESTION_PAGE_DUMMY;
+  let TEMPLATE_SUGGESTION_CARD_DUMMY;
 
 
   //======================================================================================================================
@@ -50,12 +56,23 @@
     LYRICS_CONTAINER_EL = document.querySelector('#nh-lyrics');
     CONTENT_CONTAINER_EL = document.querySelector('.nh-content');
     LYRICS_LOADER_EL = document.body.querySelector('#nh-lyrics-loader')
+
     LYRICS_CLOSE_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__close')
+    LYRICS_ALBUM_COVER_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__album-cover')
+    LYRICS_SONG_NAME_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__song-name')
+    LYRICS_ALBUM_NAME_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__album-name')
+    LYRICS_ARTIST_NAME_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__artist-name')
+    LYRICS_LYRICS_EL = LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__lyrics')
 
     TEMPLATE_SUGGESTION_PAGE = document.querySelector('#nht-suggestion-page')
     TEMPLATE_SUGGESTION_CARD = document.querySelector('#nht-suggestion-card')
     TEMPLATE_SUGGESTION_PAGE_DUMMY = document.querySelector('#nht-suggestion-page-dummy')
     TEMPLATE_SUGGESTION_PAGE_NOT_FOUND = document.querySelector('#nht-suggestion-page-not-found')
+    TEMPLATE_SUGGESTION_CARD_DUMMY = document.querySelector('#nht-suggestion-card-dummy')
+
+
+
+    
   }
 
 
@@ -75,7 +92,7 @@
   }
 
   function clearSuggestionsPage() {
-    PAGES_CONTAINER_EL.style.visibility = 'hidden';
+    PAGES_CONTAINER_EL.classList.remove(CLASS_SHOW_PAGES_CONTAINER);
     if (state.pageHead) {
       state.pageHead.destroy()
       state.pageHead = null
@@ -114,13 +131,13 @@
     clearSuggestionsPage();
 
     if (!newSearchQuery) {
-      CONTENT_CONTAINER_EL.classList.remove('nh-shrink')
+      CONTENT_CONTAINER_EL.classList.remove(CLASS_SHRINK_LOGO)
       return;
     }
 
 
-    PAGES_CONTAINER_EL.style.visibility = 'visible'; 
-    CONTENT_CONTAINER_EL.classList.add('nh-shrink')  
+    PAGES_CONTAINER_EL.classList.add(CLASS_SHOW_PAGES_CONTAINER);
+    CONTENT_CONTAINER_EL.classList.add(CLASS_SHRINK_LOGO)
     const URL = `${SUGGESTION_BASEURL}/${newSearchQuery}`
     addSuggestionsPage(URL);
   }
@@ -343,11 +360,8 @@
     }
 
 
-    static createDummyCard() {
-      const dummyCardEl = document.createElement('div');
-      dummyCardEl.classList.add('nh-suggestion-card');
-      dummyCardEl.classList.add('nh-card-dummy');
-      return dummyCardEl;
+    static createDummyCard() { 
+      return cloneNodeFromTemplate(TEMPLATE_SUGGESTION_CARD_DUMMY);
     }
 
 
@@ -378,9 +392,9 @@
 
 
     async _cardClicked() {
-      lyricsLoader(true);
+      showLyricsLoader(true);
       const { lyrics } = await fetchLyrics(this._song.artist.name, this._song.name);
-      lyricsLoader(false);
+      showLyricsLoader(false);
       showLyrics(this._song, lyrics)
     }
 
@@ -428,7 +442,7 @@
   //======================================================================================================================
 
   function showLyrics(song, lyrics) {
-    LYRICS_CONTAINER_EL.classList.add('show__lyrics');
+    LYRICS_CONTAINER_EL.classList.add(CLASS_SHOW_LYRICS);
 
     LYRICS_CLOSE_EL.addEventListener('click', removeLyrics);
     LYRICS_CONTAINER_EL.addEventListener('click', removeLyrics);
@@ -443,7 +457,7 @@
       return;
     }
 
-    LYRICS_CONTAINER_EL.classList.remove('show__lyrics');
+    LYRICS_CONTAINER_EL.classList.remove(CLASS_SHOW_LYRICS);
 
     LYRICS_CLOSE_EL.removeEventListener('click', removeLyrics);
     LYRICS_CONTAINER_EL.removeEventListener('click', removeLyrics);
@@ -453,28 +467,29 @@
 
 
 
-  function lyricsLoader(show) {
+  function showLyricsLoader(show) {
     if (show) {
-      LYRICS_LOADER_EL.style.display = 'flex';
+      LYRICS_LOADER_EL.classList.add(CLASS_SHOW_LYRICS_LOADER)
     }
     else {
-      LYRICS_LOADER_EL.style.display = 'none';
+      LYRICS_LOADER_EL.classList.remove(CLASS_SHOW_LYRICS_LOADER)
     }
   }
 
 
 
   function setLyricsToView(song, lyrics) {
-    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__album-cover').src = song ? song.album.pictureXL : '';
-    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__song-name').innerText = song ? 'Song: ' + song.name : '';
-    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__album-name').innerText = song ? 'Album: ' + song.album.name : '';
-    LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__artist-name').innerText = song ? 'Artist: ' + song.artist.name : '';
+    LYRICS_ALBUM_COVER_EL.src = song ? song.album.picture : '';
+    LYRICS_ALBUM_COVER_EL.alt = song ? song.name : '';
+    LYRICS_SONG_NAME_EL.innerText = song ? 'Song: ' + song.name : '';
+    LYRICS_ALBUM_NAME_EL.innerText = song ? 'Album: ' + song.album.name : '';
+    LYRICS_ARTIST_NAME_EL.innerText = song ? 'Artist: ' + song.artist.name : '';
 
     if (lyrics) {
-      LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__lyrics').innerText = lyrics
+      LYRICS_LYRICS_EL.innerText = lyrics
     }
     else {
-      LYRICS_CONTAINER_EL.querySelector('.nh-lyrics__lyrics').innerText = 'Oops... No Lyrics Found.'
+      LYRICS_LYRICS_EL.innerText = 'Oops... No Lyrics Found.'
     }
   }
 
