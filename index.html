@@ -29,18 +29,20 @@
         <div class="nh-content">
           <img class="nh-logo" src="./assets/logo.png" alt="Nohum Logo" />
           <input id="nh-song-search" placeholder="Search Lyrics Here..." autofocus />
-          <div id="nh-suggestions-pages-container" style="visibility: hidden;"></div>
+          <div id="nh-suggestions-pages-container"></div>
         </div>
 
 
         <div id="nh-lyrics-loader">
           <img src="assets/loader.gif" />
+          <span>Loading...</span>
         </div>
 
 
         <div id="nh-lyrics" class="nh-lyrics-overlay-container">
           <div class="nh-lyrics-content">
             <button id="nh-lyrics-close" class="nh-lyrics__close">x</button>
+            <span class="nh-lyrics__lyrics-header"> Lyrics </span>
             <span class="nh-lyrics__song-name"></span>
             <span class="nh-lyrics__album-name"></span>
             <span class="nh-lyrics__artist-name"></span>
@@ -89,6 +91,10 @@
       </div>
     </template>
 
+
+    <template id="nht-suggestion-card-dummy">
+      <div class="nh-suggestion-card nh-card-dummy"></div>
+    </template>
 
     </div>
 
